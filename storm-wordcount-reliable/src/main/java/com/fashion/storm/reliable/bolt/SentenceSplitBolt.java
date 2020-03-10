@@ -16,7 +16,6 @@ public class SentenceSplitBolt extends BaseRichBolt {
 
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
-
     }
 
     public void execute(Tuple tuple) {
@@ -25,18 +24,17 @@ public class SentenceSplitBolt extends BaseRichBolt {
 
         String[] words = sentence.split(" ");
 
-
-
         for (String word: words) {
-
-            if(word.equals("name")){
+            if(word.equals("name")) {
                 this.collector.fail(tuple);
-            }else{
-                //为了有保障的处理，这里需要进行锚定之前的tuple, 锚定之前的tuple就是将之前的tuple作为参数传入到emit方法中
-                this.collector.emit(tuple,new Values(word));
+                return ;
             }
         }
 
+        for (String word: words) {
+                //为了有保障的处理，这里需要进行锚定之前的tuple, 锚定之前的tuple就是将之前的tuple作为参数传入到emit方法中
+                this.collector.emit(tuple,new Values(word));
+        }
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {

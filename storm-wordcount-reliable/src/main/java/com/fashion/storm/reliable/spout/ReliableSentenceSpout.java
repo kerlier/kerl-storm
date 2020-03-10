@@ -14,38 +14,44 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ReliableSentenceSpout extends BaseRichSpout {
 
-
     //使用一个map来存放已经发射出去的tuple
     private ConcurrentHashMap<String, Values> pending =null;
 
     private SpoutOutputCollector collector;
 
-    private String[] sentences = {"i love you"," my name is tom"};
+    private String[] sentences = {"i love you","my name is tom"};
 
     private int index = 0;
 
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
             this.collector = spoutOutputCollector;
+            System.out.println("map"+ map.toString());
             this.pending= new ConcurrentHashMap<String, Values>();
     }
 
     public void nextTuple() {
 
+        if(index  >= 2){
+            return;
+        }
+
+        System.out.println("index:" +index);
         Values values = new Values(sentences[index]);
 
         String msgId = UUID.randomUUID().toString();
 
         this.pending.put(msgId,values);
 
+        System.out.println("提交tuple:" + values.toString());
+
         this.collector.emit(values,msgId);
 
         index ++;
-        if(index>= sentences.length){
-            index=0;
-        }
+
+        System.out.println("length："+ sentences.length);
 
         try {
-            Time.sleepSecs(1);
+            Time.sleepSecs(5);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -77,7 +83,7 @@ public class ReliableSentenceSpout extends BaseRichSpout {
      */
     @Override
     public void fail(Object msgId) {
-        System.out.println(this.pending.get(msgId )+"执行失败");
+        System.out.println(this.pending.get(msgId )+"执行失败,重新提交 msgId"+ this.pending.get(msgId).toString());
         this.collector.emit(this.pending.get(msgId),msgId);
     }
 }

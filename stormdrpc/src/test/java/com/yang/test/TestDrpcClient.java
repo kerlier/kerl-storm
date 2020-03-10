@@ -15,7 +15,7 @@ public class TestDrpcClient {
     public void testDrpcClient() throws TException {
         Map config = Utils.readDefaultConfig();
         DRPCClient drpcClient = new DRPCClient(config, "192.168.5.134", 3772);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 50; i++) {
             String result = drpcClient.execute("storm-drpc-test", "aaa" + i);
             System.out.println(result);
         }
