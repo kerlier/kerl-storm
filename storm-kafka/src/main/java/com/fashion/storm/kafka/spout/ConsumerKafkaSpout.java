@@ -2,6 +2,7 @@ package com.fashion.storm.kafka.spout;
 
 import com.fashion.storm.kafka.bolt.MessageBolt;
 import com.fashion.storm.kafka.translator.MyRecordTranslator;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
@@ -24,7 +25,8 @@ public class ConsumerKafkaSpout {
     public static void main(String[] args) throws InvalidTopologyException, AuthorizationException, AlreadyAliveException {
         TopologyBuilder topologyBuilder = new TopologyBuilder();
         //setRecordTranslator的作用就是对当前的record.value进行操作，new Fields()指的这个参数的名字
-        KafkaSpoutConfig.Builder<String, String> builder = KafkaSpoutConfig.builder("192.168.5.134:9092","test-topic").setRecordTranslator(new MyRecordTranslator(),
+        KafkaSpoutConfig.Builder<String, String> builder = KafkaSpoutConfig.builder("192.168.5.134:9092","kafka-test-4")
+                .setProp(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,"true").setRecordTranslator(new MyRecordTranslator(),
                 new Fields("word")).setRetry( new KafkaSpoutRetryExponentialBackoff(
                 new KafkaSpoutRetryExponentialBackoff.TimeInterval(500L, TimeUnit.MICROSECONDS),
                 KafkaSpoutRetryExponentialBackoff.TimeInterval.milliSeconds(2),
@@ -34,11 +36,11 @@ public class ConsumerKafkaSpout {
         // setRetry 设置失败的重试机制
 
 
-        builder.setGroupId("test_storm_wc");
+        builder.setGroupId("A");
 
         KafkaSpoutConfig<String, String> kafkaSpoutConfig = builder.build();
-        topologyBuilder.setSpout("WordCountFileSpout",new KafkaSpout<String,String>(kafkaSpoutConfig), 1);
-        topologyBuilder.setBolt("consumerBolt",new MessageBolt(),1).shuffleGrouping("WordCountFileSpout");
+        topologyBuilder.setSpout("kafkaSpout",new KafkaSpout<String,String>(kafkaSpoutConfig), 3);
+        topologyBuilder.setBolt("consumerBolt",new MessageBolt(),3).shuffleGrouping("kafkaSpout");
 
         // 集群运行
         if(null!=args && args.length>0){
