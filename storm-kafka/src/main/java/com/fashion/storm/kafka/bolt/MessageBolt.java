@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class MessageBolt extends BaseRichBolt  {
 
@@ -24,20 +25,19 @@ public class MessageBolt extends BaseRichBolt  {
 
     @Override
     public void execute(Tuple input) {
-
         String word = input.getStringByField("word");
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        System.out.println("current word value is " + word);
+//        try {
+//            TimeUnit.MINUTES.sleep(2);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         if(Objects.equals(word,"yangyuguang30")){
             LOGGER.error("message"+word+ " 执行失败,fail");
             System.err.println("message"+word+ " 执行失败,fail");
             collector.fail(input);
         }else{
             LOGGER.info("message"+word+ " 执行成功,ack");
-            System.err.println("message"+word+ " 执行成功,ack");
             collector.ack(input);
         }
 
